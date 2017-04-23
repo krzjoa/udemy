@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+from collections import OrderedDict
 
 class WolnaLektura(object):
 
@@ -19,6 +20,7 @@ class WolnaLektura(object):
         if not raw:
             self._prettify()
 
+        return self
 
     def _prettify(self):
         pass
@@ -33,10 +35,14 @@ class PanTadeusz(WolnaLektura):
 
     def __init__(self, title, path):
         super(PanTadeusz, self).__init__(title, path)
-        self.chapters = {}
+        self.chapters = OrderedDict()
 
     def __getitem__(self, item):
         return self.chapters[item]
+
+    def __iter__(self):
+        return self.chapters.itervalues()
+
 
     def _prettify(self):
         # Usunięcie tytułu i autora
@@ -49,18 +55,19 @@ class PanTadeusz(WolnaLektura):
 
         result = re.finditer(pattern, whole_text, flags=re.DOTALL | re.UNICODE)
 
-        print [r.group() for r in result]
+        ch_limits, ch_titles = [], []
 
-        # chapters_limits = [0] +[ch.start()-1 for ch in result] +[-1]
-        # chapters_titles = [ch.groups() for ch in result]
-        #
-        # for r in result:
-        #     print r.group(), r.start()
-        # for idx in xrange(len(chapters_limits)-1):
-        #     start = chapters_limits[idx]
-        #     stop = chapters_limits[idx+1]
-        #     print idx
-        #     self.chapters[chapters_titles[idx]] = self.content[start:stop]
+        for r in result:
+            ch_limits.append(r.start()-1)
+            ch_titles.append(r.group())
+
+        ch_limits = ch_limits + [-1]
+
+        for idx in xrange(len(ch_titles)):
+            start = ch_limits[idx]
+            stop = ch_limits[idx+1]
+            #print start, stop, ch_titles[idx]
+            self.chapters[ch_titles[idx]] = self.as_one_string()[start:stop]
 
 
 def load_txt(path):
@@ -69,6 +76,11 @@ def load_txt(path):
 
 
 
+
+
 if __name__ == "__main__":
     pt = PanTadeusz("Pan Tadeusz", "../data/pan-tadeusz.txt")
     pt.load(raw=False)
+
+    print pt['Księga pierwsza']
+
