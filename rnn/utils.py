@@ -18,5 +18,5 @@ def all_parity(nbits=4):
             if i % (2**(i+1)) != 0:
                 i -= 2**j
                 X[row, j] = 1
-        Y = X[row].sum() % 2
+        Y[row] = X[row].sum() % 2
     return X, Y
