@@ -5,20 +5,12 @@ from wolne_lektury import PanTadeusz
 pt = PanTadeusz("Pan Tadeusz", "../data/pan-tadeusz.txt").load(raw=False)
 
 
+def preprocess(pan_tadeusz):
 
-def clean_chapters(chapters):
-    cleaned = []
-    for ch in chapters:
-        cleaned.append(ch.splitlines()[9:])
-    return cleaned
-
+    # Dokończyć pipeline - lematyzacja i POS-tagging
+    for chapter in pan_tadeusz:
+        print chapter
 
 
 
-def preprocess(cleaned_chapters):
-    pass
-
-
-
-#print pt["Księga druga"]
-clch = clean_chapters(pt.chapters.values())
+preprocess(pt)

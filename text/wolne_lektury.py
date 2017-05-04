@@ -2,6 +2,22 @@
 import re
 from collections import OrderedDict
 
+
+class Chapter(object):
+
+    def __init__(self, name, content):
+        self.name = name
+        self.content = content
+
+
+
+class AbstractChapter(Chapter):
+
+    def __init__(self, name, content, abstract):
+        super(AbstractChapter, self).__init__(name, content)
+        self.abstract = abstract
+
+
 class WolnaLektura(object):
 
     def __init__(self, title, path):
@@ -38,7 +54,10 @@ class PanTadeusz(WolnaLektura):
         self.chapters = OrderedDict()
 
     def __getitem__(self, item):
-        return self.chapters[item]
+        if isinstance(item, int):
+            return self.chapters.values()[item]
+        else:
+            return self.chapters[item]
 
     def __iter__(self):
         return self.chapters.itervalues()
@@ -66,8 +85,12 @@ class PanTadeusz(WolnaLektura):
         for idx in xrange(len(ch_titles)):
             start = ch_limits[idx]
             stop = ch_limits[idx+1]
-            #print start, stop, ch_titles[idx]
-            self.chapters[ch_titles[idx]] = self.as_one_string()[start:stop]
+            self.chapters[ch_titles[idx]] = PanTadeusz._get_chapter(self.as_one_string()[start:stop], ch_titles[idx])
+
+    @staticmethod
+    def _get_chapter(whole_content, title):
+        splitted = whole_content.split("\n")
+        return AbstractChapter(title, splitted[9:], splitted[7:8])
 
 
 def load_txt(path):
@@ -75,12 +98,8 @@ def load_txt(path):
         return txt.readlines()
 
 
-
-
-
 if __name__ == "__main__":
     pt = PanTadeusz("Pan Tadeusz", "../data/pan-tadeusz.txt")
     pt.load(raw=False)
-
-    print pt['Księga pierwsza']
+    print pt['Księga pierwsza'].content
 
