@@ -3,7 +3,7 @@ import numpy as np
 
 
 def init_weights(Mi, Mo):
-    return np.random.rand(Mi, Mo) / np.sqrt(Mi + Mo)
+    return (np.random.rand(Mi, Mo) / np.sqrt(Mi + Mo)).astype(np.float32)
 
 def all_parity(nbits=4):
     # Liczba przykładów
@@ -19,4 +19,4 @@ def all_parity(nbits=4):
                 i -= 2**j
                 X[row, j] = 1
         Y[row] = X[row].sum() % 2
-    return X, Y
+    return X.astype(np.float32), Y.astype(np.float32)

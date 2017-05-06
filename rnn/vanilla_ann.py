@@ -30,8 +30,6 @@ class DenseLayer(object):
         return T.nnet.relu(X.dot(self.W) + self.b)
 
 
-
-
 class VanillaANN(object):
 
     def __init__(self, layers, learning_rate=10e-3, mu=0.99,
@@ -42,12 +40,12 @@ class VanillaANN(object):
         self.epochs = epochs
 
         # Params
-        self.reg = reg
-        self.eps = eps
-        self.learning_rate = learning_rate
-        self.mu = mu
+        self.reg = np.float32(reg)
+        self.eps = np.float32(eps)
+        self.learning_rate = np.float32(learning_rate)
+        self.mu = np.float32(mu)
         self.batch_size = batch_size
-        self.print_perdiod=print_period
+        self.print_period=print_period
         self.show_fig = show_fig
 
     def fit(self, X, Y):
@@ -80,16 +78,17 @@ class VanillaANN(object):
         for layer in self.hidden_layers:
             self.params += layer.params
 
-        dparams = [theano.shared(np.zeros(p.get_value().shape)) for p in self.params]
+        dparams = [theano.shared(np.zeros(p.get_value().shape).astype(np.float32)) for p in self.params]
 
         # Zmienne Theano
-        thX = T.matrix('X')
+        thX = T.matrix('X', dtype='float32')
         thY = T.ivector('Y')
         pY = self.forward(thX)
 
         # Funkcja kosztu
         rcost = self.reg*T.sum([(p**2).sum() for p in self.params])
-        cost = -T.mean(T.log(pY[T.arange(thY.shape[0], thY)])) + rcost
+        cost = -T.mean(T.log(pY[T.arange(thY.shape[0]), thY])) + rcost
+#        cost = -T.mean(T.log(pY[T.arange(thY.shape[0], thY)])) + rcost
         prediction = self.predict(thX)
         grads = T.grad(cost, self.params)
 
@@ -116,14 +115,16 @@ class VanillaANN(object):
 
                 c, p = train_op(Xbatch, Ybatch)
 
-                if j % self.print_period == 0:
-                    costs.append(c)
-                    e = np.mean(Ybatch != p)
-                    print "i:", i,
+                print "Cost", c
 
-            if self.show_fig:
-                plt.plot(costs)
-                plt.show()
+                # if j % self.print_period == 0:
+                #     costs.append(c)
+                #     e = np.mean(Ybatch != p)
+                #     print "i:", i,
+
+            # if self.show_fig:
+            #     plt.plot(costs)
+            #     plt.show()
 
     def forward(self, X):
         Z = X
@@ -146,4 +147,7 @@ def depp():
     model.fit(X, Y)
 
 if __name__ == '__main__':
-    wide()
+    #wide()
+    depp()
+
+    # Coś tu nie pasi...
